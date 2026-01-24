@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+
 
 class Author(models.Model):
     name = models.CharField(max_length=255)
@@ -13,13 +15,15 @@ class Book(models.Model):
 
     class Meta:
         permissions = (
-            ("can_add_book", "Can add book"),
-            ("can_change_book", "Can change book"),
-            ("can_delete_book", "Can delete book"),
+            ("can_view", "Can view books"),
+            ("can_create", "Can create books"),
+            ("can_edit", "Can edit books"),
+            ("can_delete", "Can delete books"),
         )
 
     def __str__(self):
         return self.title
+
 
 
 
@@ -44,7 +48,6 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
 class UserProfile(models.Model):
     ROLE_CHOICES = (
         ("Admin", "Admin"),
@@ -52,11 +55,12 @@ class UserProfile(models.Model):
         ("Member", "Member"),
     )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="Member")
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"
+
 
 
 @receiver(post_save, sender=User)
