@@ -27,6 +27,28 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
+# --- HTTPS enforcement ---
+# Redirect all HTTP requests to HTTPS (best practice for production)
+SECURE_SSL_REDIRECT = True
+
+# HTTP Strict Transport Security (HSTS)
+# 31536000 seconds = 1 year
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# If you're behind a reverse proxy/load balancer (common in production),
+# uncomment and configure this so Django knows the original request was HTTPS.
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# --- Secure cookies (HTTPS only) ---
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# --- Security headers ---
+X_FRAME_OPTIONS = "DENY"  # Prevent clickjacking
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
+SECURE_BROWSER_XSS_FILTER = True  # Enable browser XSS filtering
 
 # Application definition
 
@@ -143,4 +165,5 @@ CONTENT_SECURITY_POLICY = {
         "style-src": ("'self'", "'unsafe-inline'"),
     }
 }
+
 
