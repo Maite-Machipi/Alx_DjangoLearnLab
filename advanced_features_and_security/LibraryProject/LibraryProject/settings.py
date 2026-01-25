@@ -134,7 +134,13 @@ X_FRAME_OPTIONS = "DENY"
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
-CSP_SCRIPT_SRC = ("'self'",)
-CSP_IMG_SRC = ("'self'", "data:")
+# django-csp (new settings format)
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": ("'self'",),
+        "img-src": ("'self'", "data:"),
+        "script-src": ("'self'",),
+        "style-src": ("'self'", "'unsafe-inline'"),
+    }
+}
+
