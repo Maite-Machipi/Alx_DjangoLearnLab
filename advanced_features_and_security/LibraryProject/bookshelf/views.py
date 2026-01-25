@@ -3,6 +3,12 @@ from django.db.models import Q
 from django.contrib.auth.decorators import permission_required
 from .models import Book
 from .forms import BookSearchForm
+from .forms import ExampleForm
+
+def form_example(request):
+    form = ExampleForm()
+    return render(request, "bookshelf/form_example.html", {"form": form})
+
 
 
 @permission_required("bookshelf.can_view", raise_exception=True)
