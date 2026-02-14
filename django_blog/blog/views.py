@@ -124,20 +124,26 @@ def get_queryset(self):
         return context
 
 class SearchResultsView(ListView):
+
     model = Post
+
     template_name = "blog/search_results.html"
+
     context_object_name = "posts"
 
     def get_queryset(self):
-        query = self.request.GET.get("q", "").strip()
-        if not query:
-            return Post.objects.none()
 
-        return Post.objects.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(tags__name__icontains=query)
-        ).distinct().order_by("-published_date")
+        query = self.request.GET.get("q")
+
+        if query:
+
+            return Post.objects.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct()
+
+        return Post.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
