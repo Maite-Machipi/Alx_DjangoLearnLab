@@ -24,6 +24,12 @@
         {% endblock %}
     </div>
 
+<form method="get" action="{% url 'search' %}">
+  <input type="text" name="q" placeholder="Search posts..." />
+  <button type="submit">Search</button>
+</form>
+
+
     <footer>
         <p>&copy; 2024 Django Blog</p>
     </footer>

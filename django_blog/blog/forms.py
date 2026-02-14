@@ -19,6 +19,10 @@ class ProfileForm(forms.ModelForm):
         fields = ("email",)
 
 class PostForm(forms.ModelForm):
+    tags = forms.CharField(
+        required=False,
+        help_text="Enter tags separated by commas (e.g. django, python, blog)"
+
     class Meta:
         model = Post
         fields = ["title", "content"]
@@ -28,12 +32,6 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ["content"]
 
-class PostForm(forms.ModelForm):
-    tags = forms.CharField(required=False, help_text="Comma-separated tags")
-
-    class Meta:
-        model = Post
-        fields = ["title", "content", "tags"]
 
     def save(self, commit=True):
         post = super().save(commit=False)
