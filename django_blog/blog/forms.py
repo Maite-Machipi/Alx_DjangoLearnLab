@@ -19,13 +19,15 @@ class ProfileForm(forms.ModelForm):
         fields = ("email",)
 
 class PostForm(forms.ModelForm):
-    tags = forms.CharField(
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
         required=False,
-        help_text="Enter tags separated by commas (e.g. django, python, blog)"
+        widget=forms.CheckboxSelectMultiple
+    )
 
     class Meta:
         model = Post
-        fields = ["title", "content"]
+        fields = ['title', 'content', 'tags']
 
 class CommentForm(forms.ModelForm):
     class Meta:
