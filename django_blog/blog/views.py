@@ -9,6 +9,7 @@ from django.db.models import Q
 from .forms import RegisterForm, ProfileForm
 from .models import Post, Comment, Tag
 from .forms import PostForm, CommentForm
+from taggit.models import Tag
 
 def register_view(request):
     if request.method == "POST":
@@ -109,19 +110,14 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         comment = self.get_object()
         return comment.author == self.request.user
 
-class PostsByTagView(ListView):
+class PostByTagListView(ListView):
     model = Post
-    template_name = "blog/posts_by_tag.html"
+    template_name = "blog/post_list.html"
     context_object_name = "posts"
 
-def get_queryset(self):
-        tag_name = self.kwargs.get("tag_name")
-        return Post.objects.filter(tags__name=tag_name).distinct().order_by("-published_date")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["tag_name"] = self.kwargs.get("tag_name")
-        return context
+    def get_queryset(self):
+        tag_slug = self.kwargs.get("tag_slug")
+        return Post.objects.filter(tags__slug=tag_slug)
 
 class SearchResultsView(ListView):
 
