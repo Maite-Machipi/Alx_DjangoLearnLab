@@ -1,47 +1,55 @@
-from django.contrib.auth import authenticate
-from rest_framework import status
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
-from .serializers import RegisterSerializer, ProfileSerializer
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+from .serializers import UserRegistrationSerializer
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def register(request):
-    serializer = RegisterSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    user = serializer.save()
-    token, _ = Token.objects.get_or_create(user=user)
-    return Response(
-        {"token": token.key, "user": {"id": user.id, "username": user.username, "email": user.email}},
-        status=status.HTTP_201_CREATED,
-    )
+    serializer = UserRegistrationSerializer(data=request.data)
+
+    if serializer.is_valid():
+        user = serializer.save()
+        token = Token.objects.get(user=user)
+
+        return Response({
+            "user": serializer.data,
+            "token": token.key
+        })
+
+    return Response(serializer.errors, status=400)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def login(request):
+def login_view(request):
+
     username = request.data.get("username")
     password = request.data.get("password")
+
     user = authenticate(username=username, password=password)
 
-    if not user:
-        return Response({"detail": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+    if user is not None:
+        token, created = Token.objects.get_or_create(user=user)
 
-    token, _ = Token.objects.get_or_create(user=user)
-    return Response({"token": token.key}, status=status.HTTP_200_OK)
+        return Response({
+            "token": token.key
+        })
+
+    return Response({"error": "Invalid credentials"}, status=400)
 
 
-@api_view(["GET", "PUT", "PATCH"])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def profile(request):
-    if request.method == "GET":
-        return Response(ProfileSerializer(request.user).data)
 
-    serializer = ProfileSerializer(request.user, data=request.data, partial=True)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    user = request.user
+
+    return Response({
+        "username": user.username,
+        "email": user.email,
+        "bio": user.bio
+    })
