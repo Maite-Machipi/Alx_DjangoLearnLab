@@ -1,15 +1,26 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
+    """
+    Custom User model extending AbstractUser
+    """
+
     bio = models.TextField(blank=True)
-    profile_picture = models.URLField(blank=True)  # simple + avoids Image setup
+
+    # REQUIRED: must be models.ImageField
+    profile_picture = models.ImageField(
+        upload_to="profile_pictures/",
+        blank=True,
+        null=True
+    )
+
     followers = models.ManyToManyField(
         "self",
         symmetrical=False,
         related_name="following",
-        blank=True,
+        blank=True
     )
 
     def __str__(self):
