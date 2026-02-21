@@ -3,23 +3,19 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
-    """
-    Custom User model extending AbstractUser
-    """
-
     bio = models.TextField(blank=True)
 
-    # REQUIRED: must be models.ImageField
     profile_picture = models.ImageField(
         upload_to="profile_pictures/",
         blank=True,
         null=True
     )
 
-    followers = models.ManyToManyField(
+    # Users this user follows
+    following = models.ManyToManyField(
         "self",
         symmetrical=False,
-        related_name="following",
+        related_name="followers",
         blank=True
     )
 
