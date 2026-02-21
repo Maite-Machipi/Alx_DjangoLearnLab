@@ -223,3 +223,9 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 
 CSRF_COOKIE_SECURE = True
+
+# --------------------------------------------------
+# PORT SETTING (Required)
+# --------------------------------------------------
+
+PORT = int(os.environ.get("PORT", 8000))
