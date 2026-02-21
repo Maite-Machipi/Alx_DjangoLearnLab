@@ -35,6 +35,7 @@ ALLOWED_HOSTS = os.environ.get(
     "127.0.0.1,localhost"
 ).split(",")
 
+DEBUG=False
 
 # Application definition
 
