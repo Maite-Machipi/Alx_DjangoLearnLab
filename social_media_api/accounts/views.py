@@ -1,9 +1,13 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import CustomUser
 
+@api_view(["POST"])
+def register(request):
+    return Response({"detail": "Register endpoint placeholder"})
 
 class UserListView(generics.GenericAPIView):
     """
