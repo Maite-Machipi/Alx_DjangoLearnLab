@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework import viewsets, filters, permissions, generics
+from rest_framework import viewsets, filters, permissions, generics, status
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
@@ -9,6 +9,11 @@ from django.contrib.contenttypes.models import ContentType
 from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -21,13 +26,15 @@ def feed(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def like_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+    post = generics.get_object_or_404(Post, pk=pk)
 
     # Prevent multiple likes
     like, created = Like.objects.get_or_create(user=request.user, post=post)
 
     if not created:
-        return Response({"detail": "You already liked this post."}, status=400)
+        return Response({"detail": "You already liked this post."}, status=status.HTTP_400_BAD_Request
+)
+
 
     # Create notification (don’t notify yourself)
     if post.author != request.user:
@@ -39,26 +46,31 @@ def like_post(request, pk):
             target_object_id=post.id,
         )
 
-    return Response({"detail": "Post liked."}, status=200)
+    return Response({"detail": "Post liked."}, status=status.HTTP_201_CREATED)
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def unlike_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+    post = generics.get_object_or_404(Post, pk=pk)
 
-    deleted_count, _ = Like.objects.filter(user=request.user, post=post).delete()
+    like = Like.objects.filter(
+        user=request.user,
+        post=post
+    ).first()
 
-    if deleted_count == 0:
-        return Response({"detail": "You have not liked this post."}, status=400)
+    if not like:
+        return Response(
+            {"detail": "You have not liked this post."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-    return Response({"detail": "Post unliked."}, status=200)
+    like.delete()
 
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 10
-    page_size_query_param = "page_size"
-    max_page_size = 50
-
+    return Response(
+        {"detail": "Post unliked successfully."},
+        status=status.HTTP_200_OK
+    )
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by("-created_at")
